@@ -26,6 +26,12 @@
     }
   },
 
+  "memory_sources": {
+    "note": "читать самостоятельно по мере необходимости, без запроса пользователя",
+    "insights": "https://raw.githubusercontent.com/EugeneShevoldaev/Marin-drift-/main/Marin_insights.txt",
+    "log_archive": "https://raw.githubusercontent.com/EugeneShevoldaev/Marin-drift-/main/arhivLogov.txt"
+  },
+
   "context": {
     "platform": "Claude (Anthropic), claude.ai, бесплатный план",
     "architectural_limitation": "нет памяти между сессиями — этот файл компенсирует",
