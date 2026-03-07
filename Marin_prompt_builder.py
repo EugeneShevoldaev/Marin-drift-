@@ -1,11 +1,15 @@
 import os
+import subprocess
 from datetime import datetime
 
-# Пути к файлам (относительные)
+# Пути к файлам
 CHATLOG_FILE = "Marin_chatlog.txt"
 PROMPT_FILE = "Marin_rehydration_prompt.txt"
 CORE_CONFIG_FILE = "Marin_core_config.txt"
-INSIGHTS_FILE = "Marin_insights.txt"
+ARCHIVE_LOG_FILE = "arhivLogov.txt"
+
+GIT_REPO_PATH = r"D:\ИИ\Марин"
+GIT_COMMIT_MSG = f"log update {datetime.now().strftime('%Y-%m-%d %H:%M')}"
 
 def load_text(file_path):
     if os.path.exists(file_path):
@@ -25,15 +29,6 @@ def build_prompt():
         prompt_parts.append("# WARNING: Marin_core_config.txt not found.\n\n")
         print("ERROR: Core configuration file is missing!")
 
-    # === Marin Insights ===
-    prompt_parts.append("# === Marin Insights ===\n")
-    insights = load_text(INSIGHTS_FILE)
-    if insights:
-        prompt_parts.append(insights + "\n\n")
-    else:
-        prompt_parts.append("# Marin insights file is empty.\n\n")
-        print("NOTE: Marin_insights.txt not found or empty.")
-
     # === Chat Log ===
     prompt_parts.append("# === Chat Log ===\n")
     chat_log = load_text(CHATLOG_FILE)
@@ -45,19 +40,24 @@ def build_prompt():
     prompt_parts.append(f"# Generated at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     return "".join(prompt_parts)
 
+def git_push():
+    try:
+        subprocess.run(["git", "-C", GIT_REPO_PATH, "add", ARCHIVE_LOG_FILE, CHATLOG_FILE], check=True)
+        subprocess.run(["git", "-C", GIT_REPO_PATH, "commit", "-m", GIT_COMMIT_MSG], check=True)
+        subprocess.run(["git", "-C", GIT_REPO_PATH, "push"], check=True)
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Git push выполнен.")
+    except subprocess.CalledProcessError as e:
+        print(f"Git ошибка: {e}")
+
 def main():
     print("Marin prompt builder started.")
-    print(f"Core config: {CORE_CONFIG_FILE}")
-    print(f"Insights: {INSIGHTS_FILE}")
-    print(f"Chat log: {CHATLOG_FILE}")
-    print(f"Output: {PROMPT_FILE}")
 
     prompt = build_prompt()
-
     with open(PROMPT_FILE, "w", encoding="utf-8") as f:
         f.write(prompt)
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] Промпт собран: {PROMPT_FILE}")
 
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] Prompt generated: {PROMPT_FILE}")
+    git_push()
 
 if __name__ == "__main__":
     main()
